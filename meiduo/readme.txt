@@ -17,3 +17,13 @@
     3、安装 live-server
         npm install -g live-server
         live-server 前端服务器
+
+三、自动生成依赖文件 requiert.txt
+    pip install pipreqs
+    pipreqs .
+    安装 requiert.txt：pip install -r requiert.txt
+
+
+四、忽略日志文件
+    .gitignore ：添加 logs/*.log
+    .gitkeep : 不忽略当前文件夹
