@@ -8,6 +8,8 @@ class User(AbstractUser):
 
     # verbose_name：admin 站点显示
     mobile = models.CharField(max_length=11, unique=True, verbose_name='手机号')
+    # 定义字段，表示邮箱是否激活，默认未激活
+    email_active = models.BooleanField(default=False, verbose_name='邮箱激活状态')
 
     # Meta：修改模型在 admin 站点显示，以及数据库中存储信息
     class Meta:

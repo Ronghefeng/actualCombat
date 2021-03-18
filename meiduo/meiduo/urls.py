@@ -20,5 +20,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('verifications.urls')),   # 短信验证码模块
     path('', include('users.urls')),   # 用户模块
-    path('', include('oauth.urls'))
+    path('', include('oauth.urls')),
+    path('', include('areas.urls'))
 ]

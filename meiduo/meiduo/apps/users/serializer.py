@@ -4,7 +4,8 @@ from django_redis import get_redis_connection
 from rest_framework import serializers
 
 from . import models
-from meiduo.utils import auth
+from meiduo.utils import auth, encryption
+from celery_tasks.email import tasks
 
 
 class CreateUserSerialier(serializers.ModelSerializer):
@@ -149,4 +150,52 @@ class CreateUserSerialier(serializers.ModelSerializer):
         user.token = auth.generate_token(user)
 
         return user
+
+
+class UserDetaiSerializer(serializers.ModelSerializer):
+    """
+    需要返回的字段：user_id、username、email、email_active、mobile
+    由于字段均属于模型字段，因此可以直接继承 ModelSerializer
+    """
+    class Meta:
+        model = models.User
+        fields = ['id', 'username', 'email', 'email_active', 'mobile']
+
+
+class EmailSerializer(serializers.ModelSerializer):
+    """
+    由于 email 字段在模型中存在，且需要进行反序列化和序列化操作，因此选择 ModelSerializer
+    """
+    class Meta:
+        model = models.User
+        fields = ['id', 'email']
+
+        extra_kwargs = {
+            # 由于 email 字段在 Django 原生模型中为 EmailField 字段，且允许为空，此序列化器用于修改邮箱场景，
+            # 因此需要修改其默认属性，不允许为空
+            # EmailField 对自动检验该字段值的合法性
+            'email': {
+                'required': True
+            }
+        }
+
+    def update(self, instance, validated_data):
+        """
+        instance: User 对象
+        validated_data：反序列化后的数据
+        因当前业务需求需要支持设置邮箱时，发送邮箱激活邮件，因此重写 update 方法
+        """
+        # 更新邮箱
+        instance.email = validated_data.get('email')
+        instance.save()
+
+        email_params = {
+            'subject': '美多用户激活邮箱',
+            'to_email': instance.email,
+            'verify_url': encryption.generate_email_verify_url(instance) # 激活链接
+        }
+        # 使用 celery 异步发送邮件
+        tasks.send_verify_email.delay(**email_params)
+
+        return instance
 

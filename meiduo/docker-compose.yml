@@ -8,6 +8,8 @@ services:
       - 3306:3306
     environment:
       - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - ./mysqldata:/data
   # redis容器
   redis:
     #定义主机名

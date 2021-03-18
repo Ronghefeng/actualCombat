@@ -1,0 +1,1 @@
+EMAIL_VERIFY_URL_PREFIX = 'https://test/email/verify?'

@@ -44,11 +44,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'corsheaders',  # CORS 跨域资源共享
     'rest_framework', # DRF
+
     'users.apps.UsersConfig',   # 用户模块
     'oauth.apps.OauthConfig',   # QQ 用户模块
-    # 'oauth',
+    'areas.apps.AreasConfig',   # 行政区划
 ]
 
 MIDDLEWARE = [
@@ -227,7 +229,15 @@ SESSION_CACHE_ALIAS = 'session'
 # DRF 配置
 REST_FRAMEWORK = {
     # 异常捕获配置
-    'EXCEPTION_HANDLER': 'meiduo.utils.exceptions.exception_handler'
+    'EXCEPTION_HANDLER': 'meiduo.utils.exceptions.exception_handler',
+
+    # 认证配置
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 默认使用 JWT 认证
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BaseAuthentication'
+    )
 }
 
 # 修改 Django 认证系统的用户模型类
@@ -258,3 +268,38 @@ AUTHENTICATION_BACKENDS = ['users.utils.MutiAccountLoginBackend']
 QQ_CLIENT_ID = 'qwertyuiopsdfghjk'
 QQ_CLIENT_SECRET = '2erfdiwertyuiosdfghjklxcvbnm,'
 QQ_REDIRECT_URL = 'xxxx'
+
+
+# 发送邮件配置
+# from django.core.mail import send_mail  # Django 内置邮件发送模块
+# 邮件发送客户端实现，django.conf.global_settings 中已配置
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+# 当前测试使用网易邮箱作为邮箱服务器
+EMAIL_HOST = 'smtp.163.com'
+
+# 服务端口，默认 25，django.conf.global_settings 中已配置
+# EMAIL_PORT = 25
+EMAIL_USE_LOCALTIME = False
+
+# 发件人邮箱指定
+EMAIL_HOST_USER = '15757337126@163.com'
+# 在网易邮箱设置的授权密码
+EMAIL_HOST_PASSWORD = 'XCEDSIQICXULKUUJ'
+# # 收件人邮箱
+# EMAIL_FROM = '2427219623@163.com'
+
+# 对于数据变化频率较低，且需要频繁获取的数据，可以通过缓存到 redis 中，减少对后端数据库的查询，提升性能
+# drf 中提供了扩展模块：drf-extensions，用于对查询动作获取的数据进行缓存
+# 使用方式：
+#   1、装饰器：@cache_response(timeout=60*60, cache='default') 装饰在视图中的 get 函数
+#   2、继承扩展类，修改全局变量：
+#       继承：ListCacheResponseMixin、RetrieveCacheResponseMixin、CacheResponseMinxin
+#       配置变量：REST_FRAMEWORK_EXTENSIONS
+# drf-extensions 配置
+REST_FRAMEWORK_EXTENSIONS = {
+    # 缓存过期时间，单位秒
+    'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 60,
+    # 缓存数据存储位置，此处选择 Django 缓存配置的 CACHES 的 default 缓存数据库
+    'DEFAULT_USER_CACHE': 'default'
+}
