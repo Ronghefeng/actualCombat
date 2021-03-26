@@ -1,0 +1,5 @@
+{
+    "python.pythonPath": "/Users/rhf/projects-env/meiduo/bin/python",
+    "terminal.integrated.fontSize": 14,
+    "python.linting.pylintPath": "venv/bin/pylint"
+}
