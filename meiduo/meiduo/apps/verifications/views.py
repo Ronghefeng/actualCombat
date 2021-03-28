@@ -15,6 +15,7 @@ from celery_tasks.sms.tasks import send_sms_codes
 logger = logging.getLogger('django')
 
 class SMSCode(APIView):
+    authentication_classes = []
 
     def get(self, request, mobile):
         """

@@ -17,7 +17,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # 追加系统导包路径
 # 1、注册自应用时写法可以简洁
 # 2、修改 Django 认证的用户模型时，格式固定为：应用名.模型名，否则路径报错
@@ -34,6 +33,8 @@ DEBUG = True
 # 允许访问系统的域名
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
+# 配置文件上传路径，默认存储在本地，生产环境中一般自行搭建分布式文件存储系统，如 FastDFS、或者上传至第三方文件系统，如 又拍云
+MEDIA_ROOT = os.path.join(BASE_DIR.parent, 'media/images')
 
 # Application definition
 
@@ -46,15 +47,25 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'corsheaders',  # CORS 跨域资源共享
-    'rest_framework', # DRF
+    'rest_framework',  # DRF
+    'ckeditor',  # 富文本编辑器
+    'ckeditor_uploader',  # 富文本编辑器上传图片模块
+    'django_crontab',  # 定时器模块
 
-    'users.apps.UsersConfig',   # 用户模块
-    'oauth.apps.OauthConfig',   # QQ 用户模块
-    'areas.apps.AreasConfig',   # 行政区划
+    # 由于 django 默认 app 的路径是 项目目录/app，此处修改为 项目目录/apps/app，
+    # 因此注册时需要安装原始注册方式：app.apps.AppConfig
+    'users.apps.UsersConfig',  # 用户
+    'oauth.apps.OauthConfig',  # 第三方授权
+    'areas.apps.AreasConfig',  # 行政区划
+    'contents.apps.ContentsConfig',  # 广告
+    'goods.apps.GoodsConfig',  # 商品
+    'cards.apps.CardsConfig',   # 购物车
+    'orders.apps.OrdersConfig', # 订单
+    'myapp',
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',    # CORS 跨域资源共享中间件
+    'corsheaders.middleware.CorsMiddleware',  # CORS 跨域资源共享中间件
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -69,7 +80,7 @@ ROOT_URLCONF = 'meiduo.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'Templates')],  # 模板文件路径
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -84,7 +95,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'meiduo.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
@@ -98,7 +108,6 @@ DATABASES = {
         'NAME': 'meiduo'
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -118,20 +127,20 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+# LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-hans'
 
-TIME_ZONE = 'UTC'
+# TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
@@ -141,7 +150,7 @@ STATIC_URL = '/static/'
 # 日志
 LOGGING = {
     'version': 1,
-    'disable_exiting_loggers': False,   # 是否禁用已存在的日志器
+    'disable_exiting_loggers': False,  # 是否禁用已存在的日志器
     # 日志信息显示的格式
     'formatters': {
         # 详细输出格式
@@ -198,7 +207,7 @@ LOGGING = {
 
 # 配置 redis 作为缓存后端
 CACHES = {
-    # 缓存热点数据
+    # 缓存热点数据，如省市区的数据
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
         'LOCATION': 'redis://localhost:6379/0',
@@ -222,6 +231,22 @@ CACHES = {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient'
         }
     },
+    # 缓存用户浏览记录
+    'browser_history': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://localhost:6379/3',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient'
+        }
+    },
+    # 缓存用户购物车数据
+    'carts': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://localhost:6379/4',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient'
+        }
+    },
 }
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'session'
@@ -237,7 +262,11 @@ REST_FRAMEWORK = {
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BaseAuthentication'
-    )
+    ),
+    # 分页，指定每页数据数目
+    'PAGE_SIZE': 3,
+    # 指定全局分页类
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination'
 }
 
 # 修改 Django 认证系统的用户模型类
@@ -263,12 +292,10 @@ JWT_AUTH = {
 # Django 默认全局变量配置：django -> conf -> global_settings.py
 AUTHENTICATION_BACKENDS = ['users.utils.MutiAccountLoginBackend']
 
-
 # QQ 第三方登录
 QQ_CLIENT_ID = 'qwertyuiopsdfghjk'
 QQ_CLIENT_SECRET = '2erfdiwertyuiosdfghjklxcvbnm,'
 QQ_REDIRECT_URL = 'xxxx'
-
 
 # 发送邮件配置
 # from django.core.mail import send_mail  # Django 内置邮件发送模块
@@ -301,5 +328,44 @@ REST_FRAMEWORK_EXTENSIONS = {
     # 缓存过期时间，单位秒
     'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 60,
     # 缓存数据存储位置，此处选择 Django 缓存配置的 CACHES 的 default 缓存数据库
-    'DEFAULT_USER_CACHE': 'default'
+    'DEFAULT_USER_CACHE': 'default',
 }
+
+# 富文本编辑器 ckeditor 配置
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',  # 工具条功能
+        'height': 300,  # 编辑器高度
+        # 'width': 300    # 编辑器宽
+    }
+}
+
+CKEDITOR_UPLOAD_PATH = os.path.join(BASE_DIR.parent, 'media/images')  # 上传图片保存路径
+
+# 静态化主页存储路径
+# BASE_DIR = '/Users/rhf/PycharmProjects/actualCombat/meiduo/meiduo/apps'
+GENERATED_STATIC_HTML_FILES_DIR = os.path.join(os.path.dirname(BASE_DIR), 'fromt_end_pc')
+
+# 配置定时任务
+# 由于定时任务同 Celery 任务一样，独立于 Django 系统，因此需要单独启动
+# 命令
+#   1、添加定时任务到系统中：python manage.py crontab add
+#   2、显示已经激活的（添加至系统中）任务：python manage.py crontab show
+#   3、移除定时任务：python manage.py crontab remove
+
+CRONTAB_LOG_PATH = os.path.join(os.path.dirname(BASE_DIR), 'logs/crontab.log')
+
+# 解决中文乱码问题
+CRONTAB_COMMAND_PREFIX = 'LANG_ALL=zh_cn.UTF-8'
+
+# CRONJOBS = [
+#     # 当前业务场景，每 5 分钟就获取首页数据渲染 index.html
+#     # (定时计划[分 时 日 月 周]， 任务， 日志输出路径)
+#     ('*/1 * * * *', 'contents.crons.generate_static_index_html', '>> %s' % CRONTAB_LOG_PATH)
+# ]
+
+CRONJOBS = [
+    # 每5分钟执行一次生成主页静态文件
+    ('*/1 * * * *', 'contents.crons.generate_static_index_html', '>> %s' % CRONTAB_LOG_PATH),
+]
+

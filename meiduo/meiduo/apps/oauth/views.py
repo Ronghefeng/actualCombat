@@ -9,11 +9,13 @@ from . import utils
 from .serializer import QQOAuthSerializer
 from oauth.models import OAuthQQUser
 from meiduo.utils import auth
+from cards.utils import merge_cookie_cart_into_redis
 
 
 logger = logging.getLogger('django')
 
 class QQOAuthURLView(APIView):
+    authentication_classes = []
 
     def get(self, request):
         """
@@ -40,6 +42,7 @@ class QQOAuthURLView(APIView):
 
 class QQOAuthView(APIView):
     """获取前端传入 code，请求 QQ 服务器获取 openid"""
+    authentication_classes = []
 
     def get(self, request):
         code = request.query_params.get('code', None)
@@ -101,11 +104,16 @@ class QQOAuthView(APIView):
         # 生成 jwt 进行状态保存
         token = auth.generate_token(user)
 
-        # 返回响应
-        return Response({
+        response = Response({
             'token': token,
             'user_id': user.id,
             'username': user.username
         })
+
+        # 合并购物车信息
+        merge_cookie_cart_into_redis(request, user, response)
+
+        # 返回响应
+        return response
 
 

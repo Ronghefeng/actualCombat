@@ -6,6 +6,8 @@ from rest_framework import serializers
 from . import models
 from meiduo.utils import auth, encryption
 from celery_tasks.email import tasks
+from goods import models as goodsmodels
+from . import constants
 
 
 class CreateUserSerialier(serializers.ModelSerializer):
@@ -199,3 +201,101 @@ class EmailSerializer(serializers.ModelSerializer):
 
         return instance
 
+
+class AddressSerializer(serializers.ModelSerializer):
+    """收货地址序列化器"""
+
+    # 新增序列化字段
+    province = serializers.StringRelatedField(read_only=True)
+    city = serializers.StringRelatedField(read_only=True)
+    district = serializers.StringRelatedField(read_only=True)
+
+    # 前端必须输入省、市区 ID
+    province_id = serializers.IntegerField(label='省 ID', required=True)
+    city_id = serializers.IntegerField(label='市 ID', required=True)
+    district_id = serializers.IntegerField(label='区 ID', required=True)
+
+    class Meta:
+        model = models.Address
+        # 设置无需序列化和反序列化的字段
+        exclude = ('user', 'is_deleted', 'create_time', 'update_time')
+
+    def validate_mobile(self, value):
+
+        if not re.match(r'1[3-9]\d{9}$', value):
+            raise serializers.ValidationError('手机号格式有误。')
+
+        return value
+
+    def create(self, validated_data):
+        """
+        重写 create 方法
+        ModelSerializer 中已有 create 实现，其根据 validated_data 中的数据创建实力对象
+        但是在 Meta 中设置无需前端传入 user，创建 Address 对象时必须传入 user 对象，因此不符合需求
+        """
+
+        # 由于继承了 GenericAPIView，其 get_serializer 方法中通过设置 self.context 保存了 request 对象，
+        # 由于访问该视图，必须要通过权限，因此可以通过 request.user 获取请求用户
+        user = self.context.get('request').user
+        validated_data['user'] = user
+
+        return super().create(validated_data)
+
+
+class AddressTitleSerializer(serializers.ModelSerializer):
+    """地址 title 的序列化器"""
+
+    class Meta:
+        model = models.Address
+        fields = ['title']
+
+
+class UserBrowserHistoryViewSerializer(serializers.Serializer):
+    """
+    保存用户浏览记录的序列化器，由于无需保存到模型表中，且字段较少，
+    并且前端传入的值为 sku_id，同模型中的字段不对应，因此使用 Serializer 即可"""
+
+    # 可以在字段定义时指定部分校验规则，如 min_value，指定 sku_id 最小为 1，小于 1 则无效
+    sku_id = serializers.IntegerField(label='sku_id', min_value=1)
+
+    def validate_sku_id(self, value):
+        """
+        校验 sku_id 对象在数据库中是否存在
+        """
+        try:
+            sku = goodsmodels.SKU.objects.get(pk=value)
+
+        except goodsmodels.SKU.DoesNotExist:
+            raise serializers.ValidationError('Invalid sku_id.')
+
+        return value
+
+    def create(self, validated_data):
+        """
+        实现 create 方法
+        将用户的浏览记录保存至 redis 中，为了区分属于不同用户的浏览数据，需要获取到 user_id 作为 key 标识
+        根据业务需求，由于需要保存用户最近 5 条浏览的记录（多个不重复记录），
+        且将最新的浏览记录放在最前面（有序），使用 redis 的 list 存储较为理想
+        1、删除已存在的 sku_id 记录，对数据去重
+        2、将 sku_id 插入到 list 最前面
+        3、截取 list，只保留 5 条数据
+        """
+        user_id = self.context.get('request').user.id
+        sku_id = validated_data.get('sku_id')
+
+        redis_coon = get_redis_connection('browser_history')
+
+        history_key = constants.USER_BROWSER_HISTORY_KEY + str(user_id)
+
+        pl = redis_coon.pipeline()
+
+        # lrem(key, count, value)
+        pl.lrem(history_key, constants.USER_BROWSER_HISTORY_DELETE_MODEL, sku_id)
+        # lpush(key, value)
+        pl.lpush(history_key, sku_id)
+        # ltrim(key, start, stop)
+        pl.ltrim(history_key, constants.USER_BROWSER_HISTORY_PUSH_START, constants.USER_BROWSER_HISTORY_PUSH_STOP)
+        # 查询： lrange(key, start, stop)
+        pl.execute()
+
+        return validated_data

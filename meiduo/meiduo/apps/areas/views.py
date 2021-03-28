@@ -96,6 +96,9 @@ class AreaViewSet(CacheResponseMixin, ReadOnlyModelViewSet):
     *** 使用视图集需要对路由做修改，例如 as_view({'get': 'list})，对不同请求做方法映射
     *** 也可以通过 DefaultRouter 来注册路由，达到同样效果
     """
+
+    authentication_classes = []
+
     def get_queryset(self):
         """根据不同需求，获取不同数据集"""
 

@@ -15,11 +15,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls import url
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('verifications.urls')),   # 短信验证码模块
     path('', include('users.urls')),   # 用户模块
     path('', include('oauth.urls')),
-    path('', include('areas.urls'))
+    path('', include('areas.urls')),
+    url(r'^ckeditor/', include('ckeditor_uploader.urls')),  # 富文本编辑器路由，固定配置
+    path('', include('contents.urls')),
+    url(r'^', include('goods.urls')),
+    url(r'^', include('cards.urls')),
+    url(r'^', include('orders.urls')),
+    url(r'^', include('myapp.urls'))
 ]

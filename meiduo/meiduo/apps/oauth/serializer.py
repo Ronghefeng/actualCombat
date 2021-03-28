@@ -67,12 +67,12 @@ class QQOAuthSerializer(serializers.Serializer):
 
         sms_codes = attrs.get('sms_codes')
         # 从 redis 中取出的字符串均为 Bytes，需要进行解码
-        sms_codes_cache = redis_conn.get('mobile_%s' % mobile).decode()
+        sms_codes_cache = redis_conn.get('mobile_%s' % mobile)
 
         if not sms_codes:
             raise serializers.ValidationError('请输入验证码')
 
-        if not sms_codes_cache or sms_codes != sms_codes_cache:
+        if not sms_codes_cache or sms_codes != sms_codes_cache.decode():
             raise serializers.ValidationError('验证已过期')
 
         return attrs

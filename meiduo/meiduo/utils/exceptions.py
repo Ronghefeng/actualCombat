@@ -29,6 +29,6 @@ def exception_handler(exc, context):
         # 判断是否处于数据库异常
         if isinstance(exc, DatabaseError) or isinstance(exc, RedisError):
             logger.error('[%s] %s' % (view, exc))
-            response = Response({'message': '数据库异常'}, status=status.HTTP_507_INSUFFICIENT_STORAGE)
+            response = Response({'message': 'Mysql 或 Redis 数据库异常'}, status=status.HTTP_507_INSUFFICIENT_STORAGE)
 
     return response

@@ -1,6 +1,7 @@
 from django.urls import path
 from django.conf.urls import url
 from rest_framework_jwt.views import obtain_jwt_token
+from rest_framework.routers import DefaultRouter
 
 from . import views
 
@@ -13,7 +14,9 @@ urlpatterns = [
     url(r'^mobiles/(?P<mobile>1[3-9]\d{9})/count/$', views.MobileCheckView.as_view()),
 
     # JWT 登录，根据用户名和密码登录，然后生成 token 返回
-    url(r'^authorizations/$', obtain_jwt_token),
+    # url(r'^authorizations/$', obtain_jwt_token),
+    # 自定义 JWT 登录，满足登录时合并购物车的功能
+    url(r'^authorizations/$', views.UserAuthView.as_view()),
 
     # 获取用户详情信息，按照 restful 规范，路径资源名应该为复数，但该路选择使用单数，原因：
     # 1、使用复数同上述路径重合，无法到达
@@ -24,5 +27,12 @@ urlpatterns = [
     # 更新邮箱
     url(r'email/$', views.EmailView.as_view()),
     # 激活邮箱
-    url(r'^email/verify/$', views.EmailVerifyView.as_view())
+    url(r'^email/verify/$', views.EmailVerifyView.as_view()),
+    # 保存用户浏览记录
+    url(r'^browser_history/$', views.UserBrowserHistoryView.as_view())
 ]
+
+router = DefaultRouter()
+router.register(r'addresses', views.AddressView, basename='address')
+urlpatterns += router.urls
+
