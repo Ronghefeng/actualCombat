@@ -1,0 +1,28 @@
+//syntax是指定使用哪一种protobuf服务, 现在使用的都是"proto3"
+syntax = "proto3";
+
+//包名, 这个不是很重要
+package test;
+
+//编写服务, 每个服务里面有相应的函数(对应restful视图函数)
+//service表示创建服务
+service Matsuri {
+  //使用rpc定义函数
+  rpc hello_matsuri(request) returns (response){}
+}
+//所以我们是创建了一个名为Matsuri的服务, 服务里面有一个hello_matsuri的函数
+//函数接收一个名为request的参数, 并返回一个response, 至于结尾的{}我们后面再说
+//另外参数request、返回值response是哪里来的呢? 所以我们还要进行定义
+
+//注意: request虽然是参数, 但我个人更愿意把它称之为参数的载体
+//比如下面定义两个变量name和age, 客户端会把它们放在request里面, 在服务端中也会通过request来获取
+message request {
+  string name = 1; // = 1表示第1个参数
+  int32 age = 2;
+}
+
+//response同理, 虽然它是返回值, 但我们返回的显然是result, 只不过需要放在response里面
+//具体内容在代码中会有体现
+message response {
+  string result = 1;
+}

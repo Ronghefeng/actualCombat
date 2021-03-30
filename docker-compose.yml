@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  mysql:
+    restart: always
+    image: mysql:5.7.16
+    container_name: mysql-server
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+  # redis容器
+  redis:
+    #定义主机名
+    container_name: redis-server
+    #使用的镜像
+    image: redis:5.0.2
+    #容器的映射端口
+    ports:
+      - 6379:6379
+    #定义挂载点
+    volumes:
+      - ./redisdata:/data
+#      - ./conf:/etc/conf
+    environment:
+      - TZ=Asia/Shanghai
+      - LANG=en_US.UTF-8
+# RabbitMQ 作为消息代理
+  rabbit:
+    image: rabbitmq:3.8-management
+    hostname: rabbit
+    container_name: "rabbitmq-server"
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=root
+      - RABBITMQ_DEFAULT_PASS=root
+    volumes:
+      - ./rabbitdata:/var/lib/rabbitmq

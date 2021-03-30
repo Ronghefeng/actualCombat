@@ -1,0 +1,1 @@
+# grpc 参考链接：https://www.codeker.com/post/zai-django-zhong-shi-yong-grpc-kuang-jia/#SayHelloBidirectionalStreaming-%E5%8F%8C%E5%90%91%E6%B5%81%E6%A8%A1%E5%BC%8F
