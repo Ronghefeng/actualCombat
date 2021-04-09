@@ -1,0 +1,62 @@
+syntax = "proto3";
+package video;
+
+import "proj.chat_grpc.protos.base.proto";
+import "proj.chat_grpc.protos.user.proto";
+
+message VideoRequest {
+  int32 target_user_id = 1;
+  bool is_owner = 2;
+  enum Operation {
+    Start = 0; Heartbeat = 1; Break = 2; Accept = 3; Reject = 4; Cancel = 5;
+    Receive = 6;
+  }
+  Operation operation = 3;
+  string room_id = 4;
+  string device_number = 5;
+}
+
+message VideoResponse {
+  enum Status {
+    Received = 0; Accepted = 1; Rejected = 2; Cancelled = 3; Created = 4;
+  }
+  Status status = 1;
+  string room_id = 2;
+  string room_token = 3;
+  string token_identity = 4;
+}
+
+service VideoService {
+  rpc CallVideo(stream VideoRequest) returns(stream BaseResponse) {}
+  rpc Match(stream MatchRequest) returns(stream BaseResponse) {}
+}
+
+message MatchRequest {
+  string name = 1;
+  string country = 2;
+  enum Gender { BOTH = 0; WOMEN = 1; MAN = 2; }
+  Gender gender = 3;
+  int32 age_start = 4;
+  int32 age_end = 5;
+  enum Action {
+    START = 0; RECEIVE = 1; END = 2; KEEP = 3; HEARTBEAT = 4; LIKE = 5;
+    DISLIKE = 6;
+  }
+  Action action = 6;
+  string device_number = 7;
+  int32 target_user_id = 8;
+}
+
+message MatchResultResponse {
+  enum Status {
+    CREATED = 0; RECEIVED = 1; EMPTY = 2; MATCHED = 3; WAITING = 4; LIKED = 5;
+  }
+
+  Status status = 1;
+  user.UserDetail user = 2;
+  string room_token = 3;
+  string token_identity = 4;
+  string room_id = 5;
+  enum Gender { BOTH = 0; WOMEN = 1; MAN = 2; }
+  Gender gender = 6;
+}

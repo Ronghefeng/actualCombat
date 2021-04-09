@@ -1,0 +1,23 @@
+syntax = "proto3";
+import public "google/protobuf/any.proto";
+
+package chat;
+
+enum Status {
+  SUCCESS = 0;
+  FAILURE = 1;
+  EMPTY = 2;
+}
+
+message BaseResponse {
+  string message = 1;
+  Status status = 2;
+  google.protobuf.Any object = 3;
+}
+
+message PageList {
+  int64 total = 1;
+  int32 page = 2;
+  int32 size = 3;
+  repeated google.protobuf.Any objects = 4;
+}

@@ -2,12 +2,11 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import helloworld_pb2 as helloworld__pb2
+from . import helloworld_pb2 as helloworld__pb2
 
 
 class GreeterStub(object):
     """Missing associated documentation comment in .proto file."""
-
     def __init__(self, channel):
         """Constructor.
 
@@ -15,30 +14,29 @@ class GreeterStub(object):
             channel: A grpc.Channel.
         """
         self.SayHello = channel.unary_unary(
-                '/helloworld.Greeter/SayHello',
-                request_serializer=helloworld__pb2.HelloRequest.SerializeToString,
-                response_deserializer=helloworld__pb2.HelloReply.FromString,
-                )
+            '/helloworld.Greeter/SayHello',
+            request_serializer=helloworld__pb2.HelloRequest.SerializeToString,
+            response_deserializer=helloworld__pb2.HelloReply.FromString,
+        )
         self.SayHelloClientStreaming = channel.stream_unary(
-                '/helloworld.Greeter/SayHelloClientStreaming',
-                request_serializer=helloworld__pb2.HelloRequest.SerializeToString,
-                response_deserializer=helloworld__pb2.HelloReply.FromString,
-                )
+            '/helloworld.Greeter/SayHelloClientStreaming',
+            request_serializer=helloworld__pb2.HelloRequest.SerializeToString,
+            response_deserializer=helloworld__pb2.HelloReply.FromString,
+        )
         self.SayHelloServerStreaming = channel.unary_stream(
-                '/helloworld.Greeter/SayHelloServerStreaming',
-                request_serializer=helloworld__pb2.HelloRequest.SerializeToString,
-                response_deserializer=helloworld__pb2.HelloReply.FromString,
-                )
+            '/helloworld.Greeter/SayHelloServerStreaming',
+            request_serializer=helloworld__pb2.HelloRequest.SerializeToString,
+            response_deserializer=helloworld__pb2.HelloReply.FromString,
+        )
         self.SayHelloBidirectionalStreaming = channel.stream_stream(
-                '/helloworld.Greeter/SayHelloBidirectionalStreaming',
-                request_serializer=helloworld__pb2.HelloRequest.SerializeToString,
-                response_deserializer=helloworld__pb2.HelloReply.FromString,
-                )
+            '/helloworld.Greeter/SayHelloBidirectionalStreaming',
+            request_serializer=helloworld__pb2.HelloRequest.SerializeToString,
+            response_deserializer=helloworld__pb2.HelloReply.FromString,
+        )
 
 
 class GreeterServicer(object):
     """Missing associated documentation comment in .proto file."""
-
     def SayHello(self, request, context):
         """一元模式(在一次调用中, 客户端只能向服务器传输一次请求数据, 服务器也只能返回一次响应)
         unary-unary(In a single call, the client can only send request once, and the server can
@@ -78,100 +76,109 @@ class GreeterServicer(object):
 
 def add_GreeterServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'SayHello': grpc.unary_unary_rpc_method_handler(
-                    servicer.SayHello,
-                    request_deserializer=helloworld__pb2.HelloRequest.FromString,
-                    response_serializer=helloworld__pb2.HelloReply.SerializeToString,
-            ),
-            'SayHelloClientStreaming': grpc.stream_unary_rpc_method_handler(
-                    servicer.SayHelloClientStreaming,
-                    request_deserializer=helloworld__pb2.HelloRequest.FromString,
-                    response_serializer=helloworld__pb2.HelloReply.SerializeToString,
-            ),
-            'SayHelloServerStreaming': grpc.unary_stream_rpc_method_handler(
-                    servicer.SayHelloServerStreaming,
-                    request_deserializer=helloworld__pb2.HelloRequest.FromString,
-                    response_serializer=helloworld__pb2.HelloReply.SerializeToString,
-            ),
-            'SayHelloBidirectionalStreaming': grpc.stream_stream_rpc_method_handler(
-                    servicer.SayHelloBidirectionalStreaming,
-                    request_deserializer=helloworld__pb2.HelloRequest.FromString,
-                    response_serializer=helloworld__pb2.HelloReply.SerializeToString,
-            ),
+        'SayHello':
+        grpc.unary_unary_rpc_method_handler(
+            servicer.SayHello,
+            request_deserializer=helloworld__pb2.HelloRequest.FromString,
+            response_serializer=helloworld__pb2.HelloReply.SerializeToString,
+        ),
+        'SayHelloClientStreaming':
+        grpc.stream_unary_rpc_method_handler(
+            servicer.SayHelloClientStreaming,
+            request_deserializer=helloworld__pb2.HelloRequest.FromString,
+            response_serializer=helloworld__pb2.HelloReply.SerializeToString,
+        ),
+        'SayHelloServerStreaming':
+        grpc.unary_stream_rpc_method_handler(
+            servicer.SayHelloServerStreaming,
+            request_deserializer=helloworld__pb2.HelloRequest.FromString,
+            response_serializer=helloworld__pb2.HelloReply.SerializeToString,
+        ),
+        'SayHelloBidirectionalStreaming':
+        grpc.stream_stream_rpc_method_handler(
+            servicer.SayHelloBidirectionalStreaming,
+            request_deserializer=helloworld__pb2.HelloRequest.FromString,
+            response_serializer=helloworld__pb2.HelloReply.SerializeToString,
+        ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'helloworld.Greeter', rpc_method_handlers)
-    server.add_generic_rpc_handlers((generic_handler,))
+        'helloworld.Greeter', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler, ))
 
 
- # This class is part of an EXPERIMENTAL API.
+# This class is part of an EXPERIMENTAL API.
 class Greeter(object):
     """Missing associated documentation comment in .proto file."""
-
     @staticmethod
     def SayHello(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/helloworld.Greeter/SayHello',
+                 target,
+                 options=(),
+                 channel_credentials=None,
+                 call_credentials=None,
+                 insecure=False,
+                 compression=None,
+                 wait_for_ready=None,
+                 timeout=None,
+                 metadata=None):
+        return grpc.experimental.unary_unary(
+            request, target, '/helloworld.Greeter/SayHello',
             helloworld__pb2.HelloRequest.SerializeToString,
-            helloworld__pb2.HelloReply.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            helloworld__pb2.HelloReply.FromString, options,
+            channel_credentials, insecure, call_credentials, compression,
+            wait_for_ready, timeout, metadata)
 
     @staticmethod
     def SayHelloClientStreaming(request_iterator,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.stream_unary(request_iterator, target, '/helloworld.Greeter/SayHelloClientStreaming',
+                                target,
+                                options=(),
+                                channel_credentials=None,
+                                call_credentials=None,
+                                insecure=False,
+                                compression=None,
+                                wait_for_ready=None,
+                                timeout=None,
+                                metadata=None):
+        return grpc.experimental.stream_unary(
+            request_iterator, target,
+            '/helloworld.Greeter/SayHelloClientStreaming',
             helloworld__pb2.HelloRequest.SerializeToString,
-            helloworld__pb2.HelloReply.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            helloworld__pb2.HelloReply.FromString, options,
+            channel_credentials, insecure, call_credentials, compression,
+            wait_for_ready, timeout, metadata)
 
     @staticmethod
     def SayHelloServerStreaming(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/helloworld.Greeter/SayHelloServerStreaming',
+                                target,
+                                options=(),
+                                channel_credentials=None,
+                                call_credentials=None,
+                                insecure=False,
+                                compression=None,
+                                wait_for_ready=None,
+                                timeout=None,
+                                metadata=None):
+        return grpc.experimental.unary_stream(
+            request, target, '/helloworld.Greeter/SayHelloServerStreaming',
             helloworld__pb2.HelloRequest.SerializeToString,
-            helloworld__pb2.HelloReply.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            helloworld__pb2.HelloReply.FromString, options,
+            channel_credentials, insecure, call_credentials, compression,
+            wait_for_ready, timeout, metadata)
 
     @staticmethod
     def SayHelloBidirectionalStreaming(request_iterator,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.stream_stream(request_iterator, target, '/helloworld.Greeter/SayHelloBidirectionalStreaming',
+                                       target,
+                                       options=(),
+                                       channel_credentials=None,
+                                       call_credentials=None,
+                                       insecure=False,
+                                       compression=None,
+                                       wait_for_ready=None,
+                                       timeout=None,
+                                       metadata=None):
+        return grpc.experimental.stream_stream(
+            request_iterator, target,
+            '/helloworld.Greeter/SayHelloBidirectionalStreaming',
             helloworld__pb2.HelloRequest.SerializeToString,
-            helloworld__pb2.HelloReply.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            helloworld__pb2.HelloReply.FromString, options,
+            channel_credentials, insecure, call_credentials, compression,
+            wait_for_ready, timeout, metadata)

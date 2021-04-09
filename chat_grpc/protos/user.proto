@@ -1,0 +1,164 @@
+syntax = "proto3";
+package user;
+
+import "proj/chat_grpc/protos/base.proto";
+
+import public "google/protobuf/timestamp.proto";
+import "google/protobuf/descriptor.proto";
+
+message GetUserInfo { int32 user_id = 1; }
+
+enum Sex { MAN = 0; WOMEN = 1; UNKNOWN = 2; }
+message User {
+  int32 user_id = 1;
+  string phone = 2;
+  string cover_img = 3;
+  string hand_img = 4;
+  bool is_not_disturb = 5;
+  bool is_vip = 6;
+  google.protobuf.Timestamp t_login_time = 7;
+  string nick_name = 8;
+  bool is_onLine = 9;
+  enum DisableStatus { AVAILABLE = 0; BANED = 1; DISABLED = 2; }
+  DisableStatus disable_status = 10;
+  enum Role { NORMAL = 0; ANCHOR = 1; }
+  Role role = 11;
+  Sex sex = 12;
+  int32 age = 21;
+  int32 browse_sum = 22;
+  string city = 23;
+  string wechat = 24;
+  string country_code = 25;
+  string autograph = 26;
+  bool is_blocked = 27;
+}
+message UserDetail {
+  int32 user_id = 1;
+  string phone = 2;
+  string cover_img = 3;
+  string hand_img = 4;
+  bool is_not_disturb = 5;
+  bool is_vip = 6;
+  google.protobuf.Timestamp t_login_time = 7;
+  string nick_name = 8;
+  bool is_onLine = 9;
+  enum DisableStatus { AVAILABLE = 0; BANED = 1; DISABLED = 2; }
+  DisableStatus disable_status = 10;
+  enum Role { NORMAL = 0; ANCHOR = 1; }
+  Role role = 11;
+  Sex sex = 12;
+  int32 age = 21;
+  int32 browse_sum = 22;
+  string city = 23;
+  string wechat = 24;
+  int32 post_count = 25;
+  int32 follower_count = 26; // 关注者数量
+  int32 followee_count = 27; // 追随者数量
+  string country_code = 28;
+  google.protobuf.Timestamp birthday = 29;
+  string email = 30;
+  string autograph = 31;
+  bool is_follow = 32;
+  int32 friend_count = 33;
+  bool is_blocked = 34;
+  google.protobuf.Timestamp created_at = 35;
+  google.protobuf.Timestamp vip_expiry_date = 36;
+  enum VipStatus { FALSE = 0; TRUE = 1; EXPIRED = 2; }
+  VipStatus vip_status = 37;
+}
+message GetUserTokenRequest { string device_token = 1; }
+
+// Generated according to https://cloud.google.com/apis/design/standard_methods
+service UserService {
+
+  rpc GetUser(GetUserDetailRequest) returns(BaseResponse) {}
+  rpc GetUsers(GetUserRequest) returns(BaseResponse) {}
+
+  rpc UpdateUser(UpdateUserRequest) returns(BaseResponse) {}
+
+  rpc SetFollow(FollowRequest) returns(BaseResponse) {}
+  rpc SetBlock(BlockRequest) returns(BaseResponse) {}
+  rpc GetBlocks(GetUserRequest) returns(BaseResponse) {}
+  rpc ReportUser(ReportRequest) returns(BaseResponse) {}
+  rpc GetUserToken(GetUserTokenRequest) returns(BaseResponse) {}
+  rpc GetFriends(GetFriendsRequest) returns(BaseResponse) {}
+  rpc GetFollowers(GetFollowersRequest) returns(BaseResponse) {}
+  rpc GetFollowees(GetFolloweesRequest) returns(BaseResponse) {}
+  rpc GetOnlineUserCount(GetOnlineUserCountRequest) returns(BaseResponse) {}
+  rpc Feedback(FeedbackRequest) returns(BaseResponse) {}
+}
+extend google.protobuf.FieldOptions {
+  int32 maxval = 50001;
+  int32 minval = 50002;
+}
+
+message GetUserDetailRequest {
+  int32 id = 1;
+  bool is_self = 2;
+}
+
+message GetUserRequest {
+  // The field will contain name of the resource requested.
+  string name = 1;
+  int32 page = 2;
+  string country = 3;
+  enum Gender { BOTH = 0; WOMEN = 1; MAN = 2; }
+  Gender gender = 4;
+  int32 age_start = 5;
+  int32 age_end = 6;
+}
+
+message UpdateUserRequest {
+  // The User resource which replaces the resource on the server.
+  int32 user_id = 1;
+  string nick_name = 2;
+  Sex sex = 3;
+  google.protobuf.Timestamp birthday = 4;
+  string country_code = 5;
+  string phone = 6;
+  string email = 7;
+  string avatar_url = 8;
+  string autograph = 9;
+}
+
+message FollowRequest {
+  int32 user_id = 1;
+  bool is_follow = 2;
+}
+
+message BlockRequest {
+  int32 user_id = 1;
+  bool is_blocked = 2;
+}
+
+message ReportRequest {
+  int32 user_id = 1;
+  bool content = 2;
+}
+
+message GetFriendsRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+  int32 user_id = 3;
+}
+message GetFollowersRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+  int32 user_id = 3;
+}
+
+message GetFolloweesRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+  int32 user_id = 3;
+}
+
+message GetOnlineUserCountRequest {}
+message OnlineUserCountResponse {
+  int32 count = 1;
+  int32 videoCount = 2;
+}
+message FeedbackRequest {
+  int32 rating = 1;
+  string feedback = 2;
+}

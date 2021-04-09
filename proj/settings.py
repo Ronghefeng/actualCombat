@@ -29,48 +29,38 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-
-    'extra_apps.django_grpc.apps.DjangoGrpcConfig',
-
-    'practice',
+    'django.contrib.admin', 'django.contrib.auth',
+    'django.contrib.contenttypes', 'django.contrib.sessions',
+    'django.contrib.messages', 'django.contrib.staticfiles',
+    'extra_apps.django_grpc.apps.DjangoGrpcConfig', 'practice', 'chat_grpc'
 ]
 
 # gRpc settings
-GRPCSERVER = {
-    "servicers": [
-        "practice.servicers.helloworld_servicer.grpc_hook",
-    ],  # register servicer function grpc_hook() here
-    "interceptors": [
-        
-    ],  # optional, interceprots are similar to middleware in Django
-    "maximum_concurrent_rpcs": None,
-    "authentication": False,  # 认证方式，False为关闭认证，ssl为SSL/TLS证书认证
-    "signature": False,
-    "signature_data": {
-        
-    },
-    "certificates": {
-        "server_certificate": grpc_utils.load_credential_from_file(
-            "credentials/localhost.crt"
-        ),
-        "server_certificate_key": grpc_utils.load_credential_from_file(
-            "credentials/localhost.key"
-        ),
-        "root_certificate": grpc_utils.load_credential_from_file(
-            "credentials/localhost.crt"
-        ),
-    },
-}
+# GRPCSERVER = {
+#     "servicers": [
+#         "practice.servicers.helloworld_servicer.grpc_hook",
+#     ],  # register servicer function grpc_hook() here
+#     "interceptors":
+#     [],  # optional, interceprots are similar to middleware in Django
+#     "maximum_concurrent_rpcs": None,
+#     "authentication": False,  # 认证方式，False为关闭认证，ssl为SSL/TLS证书认证
+#     "signature": False,
+#     "signature_data": {},
+#     "certificates": {
+#         "server_certificate":
+#         grpc_utils.load_credential_from_file("credentials/localhost.crt"),
+#         "server_certificate_key":
+#         grpc_utils.load_credential_from_file("credentials/localhost.key"),
+#         "root_certificate":
+#         grpc_utils.load_credential_from_file("credentials/localhost.crt"),
+#     },
+# }
+
+# hellow_world grpc settings
+GRPCSERVER = {"servicers": ["extra_apps.grpc.grpc_servicer.grpc_hook"]}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -102,7 +92,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'proj.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
@@ -117,25 +106,27 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
@@ -149,7 +140,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/

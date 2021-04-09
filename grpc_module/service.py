@@ -51,3 +51,31 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         # 当按下Ctrl+C, 终止服务
         grpc_server.stop(0)
+
+# {
+#     'condition': <Condition(<unlocked _thread.RLock object owner=0 count=0 at 0x106625690>, 0)>,
+#     'due': set(),
+#     'initial_metadata': (),
+#     'response': None,
+#     'trailing_metadata': (),
+#     'code': <StatusCode.UNKNOWN: (2, 'unknown')>,
+#     'details': 'Exception iterating responses: No TUser matches the given query.',
+#     'debug_error_string': '{"created":"@1617360480.213293000","description":"Error received from peer ipv6:[::1]:50051","file":"src/core/lib/surface/call.cc","file_line":1068,"grpc_message":"Exception iterating responses: No TUser matches the given query.","grpc_status":2}',
+#     'cancelled': False,
+#     'callbacks': None,
+#     'fork_epoch': 0
+# }
+
+#  {
+#      'condition': <Condition(<unlocked _thread.RLock object owner=0 count=0 at 0x113fd6210>, 0)>,
+#      'due': set(),
+#      'initial_metadata': (),
+#      'response': None,
+#      'trailing_metadata': (),
+#      'code': <StatusCode.CANCELLED: (1, 'cancelled')>,
+#      'details': 'Channel closed!',
+#      'debug_error_string': '{"created":"@1617364794.598363000","description":"Error received from peer ipv6:[::1]:50051","file":"src/core/lib/surface/call.cc","file_line":1068,"grpc_message":"Channel closed!","grpc_status":1}',
+#      'cancelled': False,
+#      'callbacks': None,
+#      'fork_epoch': 0
+# }
