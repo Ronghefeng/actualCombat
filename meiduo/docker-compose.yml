@@ -10,6 +10,7 @@ services:
       - MYSQL_ROOT_PASSWORD=root
     volumes:
       - ./mysqldata:/data
+      - ./mysqldata/my.cnf:/etc/my.cnf
   # redis容器
   redis:
     #定义主机名
