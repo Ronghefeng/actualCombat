@@ -22,3 +22,6 @@ celery_app.autodiscover_tasks([
 # 启动任务命令，需要另外启动
 # -l info：打印日志，level=info
 # celery -A celery_tasks.main worker -l info
+
+# 启动 celery beat
+# celery -A celery_tasks.main beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler  #启动beat 调度器使用数据库

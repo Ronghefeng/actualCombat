@@ -1,5 +1,15 @@
 {
     "python.pythonPath": "/Users/rhf/projects-env/meiduo/bin/python",
-    "terminal.integrated.fontSize": 14,
-    "python.linting.pylintPath": "venv/bin/pylint"
+    "protoc": {
+        "path": "/path/to/protoc",
+        "compile_on_save": false,
+        "options": [
+            "--proto_path=protos/v3",
+            "--proto_path=protos/v2",
+            "--proto_path=${workspaceRoot}/proto",
+            "--proto_path=${env.GOPATH}/src",
+            "--java_out=gen/java"
+        ]
+    },
+    "python.formatting.provider": "black"
 }
